@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>放射線検出器(2018)</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="/javascripts/d3.min.js"></script>
+</head>
+
+<body>
+  <div id="main">
+    <div class="title">
+      <h2>放射線検出器(2018)</h2>
+    </div>
+
+    <div class="title">
+      <h4>測定</h4>
+    </div>
+    <div id="flex-container-operator">
+      <div class="flex-container-operation-item">
+        <label for="project-name">実験名：</label>
+        <input type="text" name="project-name" id="project-name" size="40" style="margin-right: 30px"
+          placeholder="実験名を入力してください。">
+        <label for="project-time">測定時間：</label>
+        <select type="datetime" name="project-time" id="project-time" style="margin-right: 30px">
+          <option value="" selected disabled>測定時間を選択してください。</option>
+          <option value="5">5秒</option>
+          <option value="30">30秒</option>
+          <option value="60">1分</option>
+          <option value="300">5分</option>
+          <option value="900">15分</option>
+          <option value="1800">30分</option>
+          <option value="3600">1時間</option>
+          <option value="21600">6時間</option>
+          <option value="43200">12時間</option>
+          <option value="86400">24時間</option>
+          <option value="172800">48時間</option>
+          <option value="259200">72時間</option>
+        </select>
+        <button id="operation-start-button" value="開始">開始</button>
+      </div>
+      <div class="flex-container-operation-item" style="padding-bottom: 0;">
+        <label for="csv-name">CSVファイルのURL：</label>
+        <input type="text" name="csv-name" id="csv-name" size="60" placeholder="測定終了後にダウンロードできるようになります。" disabled>
+        <button id="download-csv-button" value="download" style="margin-left: 30px;" disabled>ダウンロード</button>
+      </div>
+      <div class="flex-container-operation-item">
+        <a href="http://radee.local/phpmyadmin" class="phpmyadmin" style="font-size: 10px;" target="_blank">過去のデータはここからダウンロードできます。</a>
+      </div>
+      <div class="flex-container-operation-item">
+        <button id="reset-button" value="reset" disabled>リセット</button>
+      </div>
+    </div>
+
+    <div id="flex-container-chart">
+      <div>
+        <div class="title">
+          <h4>ヒストグラム(全データ)</h4>
+        </div>
+        <div class="card-chart">
+          <svg id="histogram" width="500" height="300"></svg>
+          <div class="card-content">
+            <div class="align-center">
+              <label for="now-time"> 経過時間[ｓ]：</label>
+              <input type="datetime" name="now-time" id="now-time" disabled>
+            </div>
+            <div class="align-center">
+              <label for="now-count">総イベント数：</label>
+              <input type="datetime" name="now-count" id="now-count" disabled>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="title">
+          <h4>新着データ</h4>
+        </div>
+        <div id="data-container">
+          <div class="data-child" id="data-child-1">-------------------</div>
+          <div class="data-child" id="data-child-2">-------------------</div>
+          <div class="data-child" id="data-child-3">-------------------</div>
+          <div class="data-child" id="data-child-4">-------------------</div>
+          <div class="data-child" id="data-child-5">-------------------</div>
+          <div class="data-child" id="data-child-6">-------------------</div>
+          <div class="data-child" id="data-child-7">-------------------</div>
+          <div class="data-child" id="data-child-8">-------------------</div>
+          <div class="data-child" id="data-child-9">-------------------</div>
+          <div class="data-child" id="data-child-10">-------------------</div>
+          <div class="data-child" id="data-child-11">-------------------</div>
+          <div class="data-child" id="data-child-12">-------------------</div>
+          <div class="data-child" id="data-child-13">-------------------</div>
+          <div class="data-child" id="data-child-14">-------------------</div>
+          <div class="data-child" id="data-child-15">-------------------</div>
+          <div class="data-child" id="data-child-16">-------------------</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content" style="padding-top: 20px;">
+      <h3>基本操作</h3>
+      <p>１．実験名と測定時間を入力して「開始」ボタンを押す。</p>
+      <p>２．終了後、「ダウンロード」ボタンを押してCSVファイルをダウンロードする。</p>
+      <p>３．「リセット」ボタンを押して実験の全設定を初期化する。</p>
+      <p>※何らかのエラーが出た場合はラズパイを再起動すればどうにかなる(はず)。</p>
+    </div>
+
+    <div class="content">
+      <h3>過去の実験データ</h3>
+      <p>１．<a href="http://radee.local/phpmyadmin" class="phpmyadmin">データベース</a>にアクセスする。(ユーザ名・パスワード共に「radee」でログイン)</p>
+      <p>２．データベース「radee」内のテーブル(テーブル名は過去の実験名)に格納されている。エラーは全て無視でOK。</p>
+      <p>３．テーブルを選択し、「エクスポート」→フォーマット「CSV」を選択して実行すればCSV形式でダウンロードできる。</p>
+    </div>
+
+    <div class="content">
+      <h3>このソフトウェアの仕組み</h3>
+      <p>１．クライアントの「開始」ボタンを合図に測定を開始。</p>
+      <p>２．ラズパイで測定した値をサーバに渡して、</p>
+      <p>３．WebSocketでクライアントに一斉送信。</p>
+      <p>４．クライアント側は受け取ったデータをプロット。</p>
+    </div>
+
+    <div class="content">
+      <h3>課題</h3>
+      <p>１．閲覧デバイスに依らないソフトへの改善。</p>
+      <p>２．ラズパイよりも安価なマイコンでの測定。</p>
+      <p>３．分かりやすく使やすいUIの考案。</p>
+      <p>４．ハードの理解。</p>
+      <p>５．学生用のドキュメントの作成。</p>
+    </div>
+
+    <div class="footer">
+      @2019 課題探求セミナー 岩永
+    </div>
+  </div>
+
+  <script src="/javascripts/histogram.js"></script>
+  <script src="/javascripts/datadisplay.js"></script>
+  <script src="/javascripts/handler.js"></script>
+  <script>
+    var ws = new WebSocket('ws://radee.local:8080');
+    var startButton = document.querySelector('button#operation-start-button');
+    var resetButton = document.querySelector('button#reset-button');
+    var downloadButton = document.querySelector('button#download-csv-button');
+
+    ws.addEventListener('message', (event) => {
+      var e = JSON.parse(event.data).event;
+      switch (e) {
+        case 'state':
+          stateHandler(event);
+          break;
+
+        case 'reload':
+          reloadHandler(event);
+          break;
+
+        case 'new':
+          newHandler(event);
+          break;
+
+        case 'started':
+          startedHandler(event);
+          break;
+
+        case 'finish':
+          finishHandler();
+          break;
+
+        case 'reset':
+          resetHandler();
+          // window.alert('設定がリセットされました。\n「実験名」と「測定時間」を入力して測定を始めましょう。');
+          break;
+
+        default:
+          break;
+      }
+    });
+
+    startButton.addEventListener('click', () => {
+      var tObj = document.querySelector('select');
+      var t = tObj.value;
+      var tSpan = tObj.options[tObj.selectedIndex].text;
+      var n = document.querySelector('input#project-name').value;
+      //if (n && tSpan) {
+      //  if (window.confirm('実験「' + n + '」(測定時間：' + tSpan + ')を実行しようとしています。\n実行しますか？')) {
+          ws.send(JSON.stringify({
+            event: 'start',
+            name: n,
+            time: t
+          }));
+      //  }
+      //} else {
+      //  window.alert('実験名と測定時間を入力してください。')
+      //}
+    });
+
+    resetButton.addEventListener('click', () => {
+      if (window.confirm('各種設定をリセットしようとしています。\nCSVファイルをダウンロードしたか確認してください。\n(リセットするとCSVファイルは失われます。)\nリセットしますか？')) {
+        ws.send(JSON.stringify({
+          event: 'reset'
+        }));
+      }
+    });
+
+    downloadButton.addEventListener('click', () => {
+      window.open('http://radee.local:3000/csv/' + document.querySelector('input#csv-name').value);
+    });
+  </script>
+</body>
+
+</html>

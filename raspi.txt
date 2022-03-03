@@ -1,0 +1,46 @@
+max_speedが重要だった！！！！！！
+
+
+sudo apt install apache2 -y
+
+sudo apt install php php-mysql libapache2-mod-php -y
+
+# sudo apt install mysql-server -y
+sudo apt install mariadb-server -y
+
+sudo apt install phpmyadmin -y
+
+sudo service apache2 stop
+sudo service apache2 start
+
+sudo mysql -u root -p
+CREATE USER 'radee'@'localhost' IDENTIFIED BY 'radee';
+GRANT ALL PRIVILEGES ON *.* TO 'radee'@'localhost';
+FLUSH PRIVILEGES;
+
+mysql -u radee -p
+CREATE DATABASE radee;
+
+/view/index.ejs
+  a
+  a
+  ws
+  open
+/measurements/demo.py
+             /measurement.py
+  http
+/routes/data.js
+  ./demo.py -> ./measurement.py
+  sql
+
+relative -> absolute path
+
+sudo nano /etc/rc.local
+ >> node /home/pi/workspace/radonApp/gamma/bin/www
+
+node
+python
+
+sudo apt-get install python3-spidev python3-rpi.gpio
+
+
